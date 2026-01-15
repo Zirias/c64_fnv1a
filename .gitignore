@@ -1,0 +1,6 @@
+*.o
+*.lbl
+*.map
+*.prg
+*.exe
+
