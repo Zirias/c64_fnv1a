@@ -40,29 +40,7 @@ fnv1a_tmploop:	lda	fnv1a_hash,x
 		lda	fnv1a_tmp+2
 		adc	fnv1a_hash+7
 		sta	fnv1a_hash+7
-		clc
-		lda	fnv1a_tmp
-		adc	fnv1a_hash+1
-		sta	fnv1a_hash+1
-		lda	fnv1a_tmp+1
-		adc	fnv1a_hash+2
-		sta	fnv1a_hash+2
-		lda	fnv1a_tmp+2
-		adc	fnv1a_hash+3
-		sta	fnv1a_hash+3
-		lda	fnv1a_tmp+3
-		adc	fnv1a_hash+4
-		sta	fnv1a_hash+4
-		lda	fnv1a_tmp+4
-		adc	fnv1a_hash+5
-		sta	fnv1a_hash+5
-		lda	fnv1a_tmp+5
-		adc	fnv1a_hash+6
-		sta	fnv1a_hash+6
-		lda	fnv1a_tmp+6
-		adc	fnv1a_hash+7
-		sta	fnv1a_hash+7
-fnv1a_ok1:	jsr	fnv1a_shift
+		jsr	fnv1a_shift
 		jsr	fnv1a_add
 		jsr	fnv1a_shift
 		jsr	fnv1a_shift
@@ -71,6 +49,8 @@ fnv1a_ok1:	jsr	fnv1a_shift
 		jsr	fnv1a_shift
 		jsr	fnv1a_add
 		jsr	fnv1a_shift
+		jsr	fnv1a_shift
+		jsr	fnv1a_add
 		jsr	fnv1a_shift
 		jsr	fnv1a_add
 		inc	fnv1a_rd+1
