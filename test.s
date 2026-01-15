@@ -19,24 +19,30 @@ main:		lda	#<input
 		sta	inputstore+1
 		lda	#>input
 		sta	inputstore+2
-inputloop:	jsr	$ffcf
+		lda	#0
+		sta	$cc
+inputloop:	jsr	$ffe4
+		beq	inputloop
 		cmp	#$d
 		bne	inputstore
 		lda	#0
 inputstore:	sta	$ffff
 		beq	tryhash
+		jsr	$ffd2
 		inc	inputstore+1
 		bne	inputloop
 		inc	inputstore+2
 		bne	inputloop
-tryhash:	lda	input
+tryhash:	lda	#$20
+		jsr	$ffd2
+		lda	#$d
+		jsr	$ffd2
+		lda	input
 		bne	dohash
 		rts
 dohash:		lda	#<input
 		ldx	#>input
 		jsr	fnv1a
-		lda	#$d
-		jsr	$ffd2
 		ldx	#7
 hashoutloop:	lda	fnv1a_hash,x
 		lsr
