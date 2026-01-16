@@ -1,5 +1,5 @@
 .import fnv1a
-.import fnv1a_hash
+.importzp fnv1a_hash
 
 .segment "BHDR"
 

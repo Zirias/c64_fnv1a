@@ -6,9 +6,17 @@ easily be modified to accept arbitrary input. It tries to balance code size
 and speed, and it's verified with a list of sample inputs against several
 reference implementations.
 
-The FNV-1a implementation is in `fnv1a.s`, while `test.s` contains some simple
-test program using it. `ref.c` is a reference implementation in standard C
-not meant for the C64.
+**Files**:
+
+* `test.s`: A simple test program hashing a line of input from the keyboard,
+  exit by entering an empty line
+* `fnv1a.s`: A straight-forward implementation without much optimization
+  except for hardcoding the sequence to carry out multiplying by the constant
+  prime
+* `fnv1a_fast.s`: An attempt optimizing for speed without greatly increasing
+  the size, using zeropage locations, unrolling two loops and replacing
+  subroutine calls with branching based on a state machine
+* `ref.c`: Simple reference implementation in C, **not** for the C64
 
 ## Screenshot
 
