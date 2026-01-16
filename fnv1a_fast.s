@@ -4,8 +4,7 @@
 .data
 
 fnv1a_initval:	.byte	$25, $23, $22, $84, $e4, $9c, $f2, $cb
-fnv1a_steps:	.byte	$ff, $01, $ff, $ff, $ff, $01, $ff, $01
-		.byte	$ff, $ff, $01, $ff, $01, $00
+fnv1a_steps:	.byte	$01, $02, $01, $03, $01
 
 .zeropage
 
@@ -52,16 +51,10 @@ fnv1a_mainloop:	eor	fnv1a_hash
 		lda	fnv1a_tmp+2
 		adc	fnv1a_hash+7
 		sta	fnv1a_hash+7
-		ldx	#$ff
 
-fnv1a_mult:	inx
-		lda	fnv1a_steps,x
-		bmi	fnv1a_shift
-		bne	fnv1a_add
-		inc	fnv1a_rd+1
-		bne	fnv1a_rd
-		inc	fnv1a_rd+2
-		bne	fnv1a_rd
+		ldx	#4
+fnv1a_mult:	lda	fnv1a_steps,x
+		tay
 
 fnv1a_shift:	asl	fnv1a_tmp
 		rol	fnv1a_tmp+1
@@ -71,10 +64,11 @@ fnv1a_shift:	asl	fnv1a_tmp
 		rol	fnv1a_tmp+5
 		rol	fnv1a_tmp+6
 		rol	fnv1a_tmp+7
-		clc
-		bcc	fnv1a_mult
+		dey
+		bne	fnv1a_shift
 
-fnv1a_add:	lda	fnv1a_tmp
+fnv1a_add:	clc
+		lda	fnv1a_tmp
 		adc	fnv1a_hash
 		sta	fnv1a_hash
 		lda	fnv1a_tmp+1
@@ -98,6 +92,11 @@ fnv1a_add:	lda	fnv1a_tmp
 		lda	fnv1a_tmp+7
 		adc	fnv1a_hash+7
 		sta	fnv1a_hash+7
-		clc
-		bcc	fnv1a_mult
+		dex
+		bpl	fnv1a_mult
+
+fnv1a_next:	inc	fnv1a_rd+1
+		bne	fnv1a_rdok
+		inc	fnv1a_rd+2
+fnv1a_rdok:	jmp	fnv1a_rd
 
