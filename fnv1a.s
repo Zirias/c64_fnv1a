@@ -54,9 +54,9 @@ fnv1a_tmploop:	lda	fnv1a_hash,x
 		jsr	fnv1a_shift
 		jsr	fnv1a_add
 		inc	fnv1a_rd+1
-		bne	fnv1a_next
+		bne	fnv1a_rd
 		inc	fnv1a_rd+2
-fnv1a_next:	jmp	fnv1a_rd
+		bne	fnv1a_rd
 fnv1a_shift:	asl	fnv1a_tmp
 		rol	fnv1a_tmp+1
 		rol	fnv1a_tmp+2
