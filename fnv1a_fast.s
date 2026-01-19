@@ -37,19 +37,16 @@ fnv1a_mainloop:	eor	fnv1a_hash
 		sta	fnv1a_tmp+4
 		lda	fnv1a_hash+5
 		sta	fnv1a_tmp+5
+		clc
+		adc	fnv1a_tmp
+		sta	fnv1a_hash+5
 		lda	fnv1a_hash+6
 		sta	fnv1a_tmp+6
+		adc	fnv1a_tmp+1
+		sta	fnv1a_hash+6
 		lda	fnv1a_hash+7
 		sta	fnv1a_tmp+7
-		clc
-		lda	fnv1a_tmp
-		adc	fnv1a_hash+5
-		sta	fnv1a_hash+5
-		lda	fnv1a_tmp+1
-		adc	fnv1a_hash+6
-		sta	fnv1a_hash+6
-		lda	fnv1a_tmp+2
-		adc	fnv1a_hash+7
+		adc	fnv1a_tmp+2
 		sta	fnv1a_hash+7
 
 		ldx	#4
