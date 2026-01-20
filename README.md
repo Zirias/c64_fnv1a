@@ -10,12 +10,8 @@ reference implementations.
 
 * `test.s`: A simple test program hashing a line of input from the keyboard,
   exit by entering an empty line
-* `fnv1a.s`: A straight-forward implementation without much optimization
-  except for hardcoding the sequence to carry out multiplying by the constant
-  prime
-* `fnv1a_fast.s`: An attempt optimizing for speed without greatly increasing
-  the size, using zeropage locations, unrolling two loops and replacing
-  subroutine calls with branching based on a state machine
+* `fnv1a.s`: An optimized implementation of the FNV-1a algorithm for the
+  MOS 6502.
 * `ref.c`: Simple reference implementation in C, **not** for the C64
 
 ## Screenshot

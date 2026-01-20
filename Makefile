@@ -6,7 +6,7 @@ LD65FLAGS+=	-Ln $(TARGET).lbl -m $(TARGET).map -C $(TARGET).cfg
 
 TARGET=		fnv1atest
 
-MODULES=	fnv1a_fast test
+MODULES=	fnv1a test
 
 OBJS=		$(addsuffix .o,$(MODULES))
 
