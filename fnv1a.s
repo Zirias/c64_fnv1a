@@ -6,18 +6,6 @@
 fnv1a_initval:	.byte	$25, $23, $22, $84, $e4, $9c, $f2, $cb
 FNV1A_SIZE=	* - fnv1a_initval
 
-		; 64bit FNV-1a prime is 0x00000100000001b3
-		; Table of the number of necessary left shifts to multiply by
-		; just 0x1b3, in backwards order for simple x-indexed reading:
-fnv1a_steps:	.byte	$01, $02, $01, $03, $01
-FNV1A_NSTEPS=	* - fnv1a_steps
-		; The table excludes the single bit position needed to multiply
-		; by 0x0000010000000000, because it's an outlier (which would
-		; require *excessive* bit shifting) AND happens to have a
-		; position that's a multiple of 8, so it can be special-cased
-		; without executing any actual bit shifts for our optimized
-		; implementation.
-
 .zeropage
 
 fnv1a_hash:	.res	FNV1A_SIZE	; Buffer for the 64bit hash value
@@ -32,7 +20,7 @@ fnv1a_done:	rts	; routine exit, branches here when done hashing
 ;	A/X (in)		pointer to NUL-terminated input
 ;	fnv1a_hash (ZP,out)	64bit hash in little endian
 ;
-;	clobbers:		A, X, Y, SR (all flags)
+;	clobbers:		A, X, SR (all flags)
 ;
 fnv1a:
 		sta	fnv1a_mainloop+1	; initialize pointer to
@@ -48,12 +36,21 @@ fnv1a_mainloop:	lda	$ffff			; read next input byte
 		eor	fnv1a_hash		; xor with current hash
 		sta	fnv1a_hash		; write lowest byte to
 		sta	fnv1a_tmp		; both buffers
+
+		; FNV-1a now requires a multiplication by the prime number
+		; 0x00000100000001b3. We first multiply by 0x0000010000000001
+		; which is a nice special case. The most significant 1 bit in
+		; that factor is an "outlier" which would require an excessive
+		; amount of bit-shifting, but happens to be placed at a
+		; multiple of 8, so it can be done instead without *any*
+		; shifting by adding the lowest 3 bytes to the topmost 3 bytes.
+
 		.repeat	5, B
 		lda	fnv1a_hash+1+B		; copy the next 5 bytes
 		sta	fnv1a_tmp+1+B		; to temp buffer
 		.endrep
 		clc				; special case multiplication
-		adc	fnv1a_tmp		; by 0x0000010000000000 ->
+		adc	fnv1a_tmp		; by 0x0000010000000001 ->
 		sta	fnv1a_hash+5		; add value shifted by 5 bytes
 		.repeat 2, B
 		lda	fnv1a_hash+6+B		; copy and add remaining
@@ -62,24 +59,27 @@ fnv1a_mainloop:	lda	$ffff			; read next input byte
 		sta	fnv1a_hash+6+B
 		.endrep
 
-		ldx	#FNV1A_NSTEPS-1
-fnv1a_mult:	ldy	fnv1a_steps,x		; multiply by 0x1b3 using table
+		; Now we just need to multiply by another 8bit value for
+		; the bits #1 to #8 not considered yet.
 
-fnv1a_shift:	asl	fnv1a_tmp		; shift temp buffer left
+		lda	#$d9			; factor (0x1b3 >> 1)
+
+fnv1a_mult:	asl	fnv1a_tmp		; shift temp buffer left
 		.repeat FNV1A_SIZE-1, B
 		rol	fnv1a_tmp+1+B
 		.endrep
-		dey
-		bne	fnv1a_shift		; repeat as needed
+		lsr	a			; check factor afterwards,
+		bcc	fnv1a_mult		; accounting for the 1bit shift
+		tax				; save factor while adding
 
-		clc				; add temp buffer to hash value
+		clc				; add shifted temp buffer
 		.repeat FNV1A_SIZE, B
 		lda	fnv1a_tmp+B
 		adc	fnv1a_hash+B
 		sta	fnv1a_hash+B
 		.endrep
-		dex
-		bpl	fnv1a_mult		; repeat until end of table
+		txa				; restore factor
+		bne	fnv1a_mult		; repeat until factor is 0
 
 		inc	fnv1a_mainloop+1	; update input pointer to
 		bne	fnv1a_next		; next input byte
