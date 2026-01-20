@@ -12,8 +12,13 @@ OBJS=		$(addsuffix .o,$(MODULES))
 
 all:		$(TARGET).prg
 
+clean:
+		rm *.o *.lbl *.map *.prg
+
 $(TARGET).prg:	$(OBJS) $(TARGET).cfg Makefile
 	$(LD65) -o$@ $(LD65FLAGS) $(OBJS)
 
 %.o:		%.s $(TARGET).cfg Makefile
 	$(CA65) $(CA65FLAGS) -o$@ $<
+
+.PHONY:		all clean
